@@ -122,6 +122,7 @@ class CrossValidator(Estimator, HasSeed):
         Params._dummy(), "evaluator",
         "evaluator used to select hyper-parameters that maximize the cross-validated metric")
     numFolds = Param(Params._dummy(), "numFolds", "number of folds for cross validation")
+    metrics = None
 
     @keyword_only
     def __init__(self, estimator=None, estimatorParamMaps=None, evaluator=None, numFolds=3,
@@ -217,7 +218,7 @@ class CrossValidator(Estimator, HasSeed):
         h = 1.0 / nFolds
         randCol = self.uid + "_rand"
         df = dataset.select("*", rand(seed).alias(randCol))
-        metrics = np.zeros(numModels)
+        self.metrics = np.zeros(numModels)
         for i in range(nFolds):
             validateLB = i * h
             validateUB = (i + 1) * h
@@ -228,12 +229,12 @@ class CrossValidator(Estimator, HasSeed):
                 model = est.fit(train, epm[j])
                 # TODO: duplicate evaluator to take extra params from input
                 metric = eva.evaluate(model.transform(validation, epm[j]))
-                metrics[j] += metric
+                self.metrics[j] += metric
 
         if eva.isLargerBetter():
-            bestIndex = np.argmax(metrics)
+            bestIndex = np.argmax(self.metrics)
         else:
-            bestIndex = np.argmin(metrics)
+            bestIndex = np.argmin(self.metrics)
         bestModel = est.fit(dataset, epm[bestIndex])
         return CrossValidatorModel(bestModel)
 
