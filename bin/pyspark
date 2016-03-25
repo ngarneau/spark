@@ -36,6 +36,8 @@ export _SPARK_CMD_USAGE="Usage: ./bin/pyspark [options]"
 #
 # For backwards-compatibility, we retain the old IPYTHON and IPYTHON_OPTS variables.
 
+export PYSPARK_PYTHON=python3
+
 # Determine the Python executable to use if PYSPARK_PYTHON or PYSPARK_DRIVER_PYTHON isn't set:
 if hash python2.7 2>/dev/null; then
   # Attempt to use Python 2.7, if installed:
